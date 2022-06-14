@@ -52,7 +52,7 @@ CMenuMeritPacket::CMenuMeritPacket(CCharEntity* PChar)
 
     ref<uint16>(0x0A) = bits;
 
-    ref<uint8>(0x0C) = map_config.max_merit_points + PChar->PMeritPoints->GetMeritValue(MERIT_MAX_MERIT, PChar);
+    ref<uint8>(0x0C) = settings::get<uint8>("map.MAX_MERIT_POINTS") + PChar->PMeritPoints->GetMeritValue(MERIT_MAX_MERIT, PChar);
 
     PChar->pushPacket(new CBasicPacket(*this));
 

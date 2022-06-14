@@ -360,13 +360,14 @@ int32 lobbydata_parse(int32 fd)
                         sessionCount = (uint16)sql->GetIntData(0);
                     }
 
-                    bool isNotMaint   = maint_config.maint_mode == 0;
-                    bool loginLimitOK = (login_config.login_limit == 0 || sessionCount < login_config.login_limit);
+                    bool isNotMaint   = !settings::get<bool>("login.MAINT_MODE");
+                    auto loginLimit   = settings::get<uint8>("login.LOGIN_LIMIT");
+                    bool loginLimitOK = loginLimit == 0 || sessionCount < loginLimit;
                     bool isGM         = gmlevel > 0;
 
                     if (!loginLimitOK)
                     {
-                        ShowWarning("Already %u active session(s) for %s (Limit is %u)", sessionCount, sd->login, login_config.login_limit);
+                        ShowWarning("%s already has %u active session(s), limit is %u", sd->login, sessionCount, loginLimit);
                     }
 
                     if ((isNotMaint && loginLimitOK) || isGM)
@@ -462,7 +463,7 @@ int32 lobbydata_parse(int32 fd)
 
                 do_close_tcp(sd->login_lobbyview_fd);
 
-                ShowStatus("lobbydata_parse: client %s finished work with lobbyview", ip2str(sd->client_addr));
+                ShowInfo("lobbydata_parse: client %s finished work with lobbyview", ip2str(sd->client_addr));
                 break;
             }
             default:
@@ -730,7 +731,7 @@ int32 lobbyview_parse(int32 fd)
                 //              sessions[sd->login_lobbydata_fd]->wdata[0]  = 0x15;
                 //              sessions[sd->login_lobbydata_fd]->wdata[1]  = 0x07;
                 //              WFIFOSET(sd->login_lobbydata_fd,2);
-                ShowStatus("lobbyview_parse: char <%s> was successfully created", sd->charname);
+                ShowInfo("lobbyview_parse: char <%s> was successfully created", sd->charname);
                 /////////////////////////
                 LOBBY_ACTION_DONE(ReservePacket);
                 unsigned char hash[16];

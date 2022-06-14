@@ -382,7 +382,7 @@ std::list<SearchEntity*> CDataLoader::GetPlayersList(search_req sr, int* count)
         {
             *count = totalResults;
         }
-        ShowMessage("Found %i results, displaying %i. ", totalResults, visibleResults);
+        ShowInfo("Found %i results, displaying %i. ", totalResults, visibleResults);
     }
 
     return PlayersList;
@@ -607,7 +607,7 @@ void CDataLoader::ExpireAHItems()
     }
     else if (ret == SQL_ERROR)
     {
-        //  ShowMessage(CL_RED"SQL ERROR: %s", SQL_ERROR);
+        //  ShowInfo(CL_RED"SQL ERROR: %s", SQL_ERROR);
     }
-    ShowMessage("Sent %u expired auction house items back to sellers", expiredAuctions);
+    ShowInfo("Sent %u expired auction house items back to sellers", expiredAuctions);
 }

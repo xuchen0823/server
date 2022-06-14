@@ -178,7 +178,7 @@ map_session_data_t* mapsession_createsession(uint32 ip, uint16 port)
 int32 do_init(int32 argc, char** argv)
 {
     TracyZoneScoped;
-    ShowStatus("do_init: begin server initialization");
+    ShowInfo("do_init: begin server initialization");
     map_ip.s_addr = 0;
 
     for (int i = 1; i < argc; i++)
@@ -201,29 +201,29 @@ int32 do_init(int32 argc, char** argv)
     luautils::init();
     PacketParserInitialize();
 
-    ShowStatus("do_init: connecting to database");
+    ShowInfo("do_init: connecting to database");
     sql = std::make_unique<SqlConnection>();
 
     sql->Query("DELETE FROM accounts_sessions WHERE IF(%u = 0 AND %u = 0, true, server_addr = %u AND server_port = %u);",
                map_ip.s_addr, map_port, map_ip.s_addr, map_port);
 
-    ShowStatus("do_init: zlib is reading");
+    ShowInfo("do_init: zlib is reading");
     zlib_init();
 
-    ShowStatus("do_init: starting ZMQ thread");
+    ShowInfo("do_init: starting ZMQ thread");
     message::init();
     messageThread = std::thread(message::listen);
 
-    ShowStatus("do_init: loading items");
+    ShowInfo("do_init: loading items");
     itemutils::Initialize();
 
-    ShowStatus("do_init: loading plants");
+    ShowInfo("do_init: loading plants");
     gardenutils::Initialize();
 
     // One method to initialize all data in battleutils
     // and one method to free this data
 
-    ShowStatus("do_init: loading spells");
+    ShowInfo("do_init: loading spells");
     spell::LoadSpellList();
     mobSpellList::LoadMobSpellList();
     automaton::LoadAutomatonSpellList();
@@ -246,13 +246,13 @@ int32 do_init(int32 argc, char** argv)
     daily::LoadDailyItems();
     roeutils::UpdateUnityRankings();
 
-    ShowStatus("do_init: loading zones");
+    ShowInfo("do_init: loading zones");
     zoneutils::LoadZoneList();
 
     fishingutils::InitializeFishingSystem();
     instanceutils::LoadInstanceList();
 
-    ShowStatus("do_init: server is binding with port %u", map_port == 0 ? map_config.usMapPort : map_port);
+    ShowInfo("do_init: server is binding with port %u", map_port == 0 ? map_config.usMapPort : map_port);
     map_fd = makeBind_udp(map_config.uiMapIp, map_port == 0 ? map_config.usMapPort : map_port);
 
     CVanaTime::getInstance()->setCustomEpoch(map_config.vanadiel_time_epoch);
@@ -277,8 +277,8 @@ int32 do_init(int32 argc, char** argv)
 
     moduleutils::ReportLuaModuleUsage();
 
-    ShowStatus("The map-server is ready to work!");
-    ShowMessage("=======================================================================");
+    ShowInfo("The map-server is ready to work!");
+    ShowInfo("=======================================================================");
 
     // clang-format off
     gConsoleService = std::make_unique<ConsoleService>();
@@ -441,7 +441,7 @@ int32 do_sockets(fd_set* rfd, duration next)
     {
         if (sErrno != S_EINTR)
         {
-            ShowFatalError("do_sockets: select() failed, error code %d!", sErrno);
+            ShowCritical("do_sockets: select() failed, error code %d!", sErrno);
             do_final(EXIT_FAILURE);
         }
         return 0; // interrupted by a signal, just loop and try again
@@ -857,7 +857,7 @@ int32 send_parse(int8* buff, size_t* buffsize, sockaddr_in* from, map_session_da
 
     if (PacketSize > MAX_BUFFER_SIZE + 20)
     {
-        ShowFatalError("Memory manager: PTempBuff is overflowed (%u)", PacketSize);
+        ShowCritical("Memory manager: PTempBuff is overflowed (%u)", PacketSize);
     }
 
     // Making total packet

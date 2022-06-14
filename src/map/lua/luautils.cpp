@@ -106,7 +106,7 @@ namespace luautils
     {
         TracyZoneScoped;
 
-        ShowStatus("luautils: Lua initializing");
+        ShowInfo("luautils: Lua initializing");
 
         // Bind math.randon(...) globally
         // clang-format off
